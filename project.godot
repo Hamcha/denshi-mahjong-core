@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Reference",
+"class": "Hand",
+"language": "GDScript",
+"path": "res://Classes/Hand.gd"
+}, {
 "base": "Node2D",
 "class": "Tile",
 "language": "GDScript",
@@ -20,6 +25,7 @@ _global_script_classes=[ {
 "path": "res://Classes/Wall.gd"
 } ]
 _global_script_class_icons={
+"Hand": "",
 "Tile": "",
 "Wall": ""
 }

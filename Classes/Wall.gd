@@ -8,9 +8,6 @@ var dora_wall = []
 var kan_wall = []
 var revealed_doras = 0
 
-# Player hands
-var players = []
-
 const ERR_LIVE_WALL_EMPTY = "live wall is empty"
 const ERR_ALL_KANS_DECLARED = "4 kans have been declared already"
 
@@ -18,7 +15,7 @@ const ERR_ALL_KANS_DECLARED = "4 kans have been declared already"
 # Setting up a new game
 #
 
-func new_game(player_count: int):
+func new_game():
 	# Prepare tiles
 	prepare_tiles()
 
@@ -29,10 +26,6 @@ func new_game(player_count: int):
 	kan_wall = take(4)
 	dora_wall = take(10)
 	reveal_dora()
-	
-	# Player hands
-	for _p in range(player_count):
-		players.push_back(take(13))
 
 func prepare_tiles():
 	for _num in range(4):

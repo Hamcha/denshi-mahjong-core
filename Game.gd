@@ -8,7 +8,7 @@ func _ready():
 	new_game()
 
 func new_game():
-	wall.new_game(4)
+	wall.new_game()
 	var tile_row = 0
 	for player in wall.players:
 		var tile_col = 0

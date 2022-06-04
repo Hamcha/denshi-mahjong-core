@@ -31,11 +31,11 @@ func new_game(player_count: int):
 	reveal_dora()
 	
 	# Player hands
-	for p in range(player_count):
+	for _p in range(player_count):
 		players.push_back(take(13))
 
 func prepare_tiles():
-	for num in range(4):
+	for _num in range(4):
 		# Add each bam/pin/crack
 		for n in range(1, 10):
 			tiles.push_back([Tile.Kind.BAM, n])
@@ -77,7 +77,7 @@ func draw_kan():
 	# Can only call Kan if there are still tiles to draw
 	if tiles.size() < 1:
 		return ERR_LIVE_WALL_EMPTY
-	
+
 	# Max 4 kans per game
 	if kan_wall.size() < 1:
 		return ERR_ALL_KANS_DECLARED
@@ -87,6 +87,8 @@ func draw_kan():
 
 	# Pop tile from live wall
 	dora_wall.push_back(tiles.pop_back())
+
+	return tile
 
 func reveal_dora():
 	if revealed_doras < dora_wall.size() / 2:

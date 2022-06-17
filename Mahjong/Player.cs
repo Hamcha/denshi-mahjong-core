@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using DenshiMahjong.Utils;
 
 namespace DenshiMahjong.Mahjong
 {
@@ -31,43 +33,71 @@ namespace DenshiMahjong.Mahjong
             }
         }
 
-        private Wall wall;
-        private List<Tile> tiles;
-        private List<Call> calls;
-        private Tile drawnTile;
+        public event Action OnNewHand;
+        public event Action<Tile, bool> OnTileDiscarded;
+        public event Action<Tile> OnTileDrawn;
+        public event Action<Call> OnCallMade;
 
-        public Tile.WindDirection wind;
-        public bool IsOpen => calls.Count > 0 && calls.Any(call => call.IsOpen);
+        public List<Tile> Tiles { get; private set; }
+        public List<Call> Calls { get; private set; } = new List<Call>();
+        public Tile DrawnTile { get; private set; }
+        public List<Tile> Discards { get; private set; } = new List<Tile>();
 
-        public Player(Wall wall, Tile.WindDirection wind)
+        public Tile.WindDirection Wind;
+        public int Index;
+        public bool IsOpen => Calls.Count > 0 && Calls.Any(call => call.IsOpen);
+
+        private readonly Wall _wall;
+
+        public Player(Wall wall, int index)
         {
-            this.wall = wall;
-            this.wind = wind;
+            this._wall = wall;
+            Index = index;
         }
 
         public void DrawStartingHand()
         {
-            tiles = Enumerable.Range(0, 13).Select(_ => wall.DrawTile()).ToList();
+            Tiles = Enumerable.Range(0, 13).Select(_ => _wall.DrawTile()).ToList();
+            OnNewHand?.Invoke();
         }
 
         public void DrawTile()
         {
-            drawnTile = wall.DrawTile();
+            DrawnTile = _wall.DrawTile();
+            OnTileDrawn?.Invoke(DrawnTile);
         }
 
         public void MakeCall(Call.CallType type, Tile.WindDirection source, Tile discardedTile, List<Tile> ownTiles)
         {
-            calls.Add(new Call(type, source, ownTiles, discardedTile));
+            var call = new Call(type, source, ownTiles, discardedTile);
+            Calls.Add(call);
+            OnCallMade?.Invoke(call);
         }
 
         public void DiscardForTurn(Tile tile)
         {
-            tiles.Remove(tile);
-            if (drawnTile != null)
+            Discards.Add(tile);
+            Tiles.Remove(tile);
+            if (DrawnTile != null)
             {
-                tiles.Add(drawnTile);
-                drawnTile = null;
+                Tiles.Add(DrawnTile);
+                DrawnTile = null;
             }
+
+            OnTileDiscarded?.Invoke(tile, false);
+        }
+
+        public void DiscardDrawnTile()
+        {
+            var tile = DrawnTile;
+            Discards.Add(tile);
+            DrawnTile = null;
+            OnTileDiscarded?.Invoke(tile, true);
+        }
+
+        public List<Tile> Sorted
+        {
+            get => Tiles.OrderBy(tile => tile).ToList();
         }
     }
 }

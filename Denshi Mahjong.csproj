@@ -1,0 +1,12 @@
+<Project Sdk="Godot.NET.Sdk/3.3.0">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>DenshiMahjong</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Classes\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Classes\**" />
+  </ItemGroup>
+</Project>

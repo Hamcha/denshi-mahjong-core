@@ -1,6 +1,6 @@
 using System;
-using DenshiMahjong.Mahjong;
 using Godot;
+using MahjongLib;
 
 public class Tile2D : Control
 {

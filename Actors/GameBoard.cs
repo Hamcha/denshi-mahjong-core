@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using DenshiMahjong.Mahjong;
 using DenshiMahjong.Utils;
 using Godot;
+using MahjongLib;
 
 namespace DenshiMahjong.Actors
 {
@@ -25,7 +25,8 @@ namespace DenshiMahjong.Actors
 
 		// Editor / Debug
 		[Export] public bool SingleClient = false;
-
+		private GameLog _log = new GameLog();
+		
 		public override void _Ready()
 		{
 			_prevalentWindLabel = GetNode("Prevalent") as Label;
@@ -41,8 +42,9 @@ namespace DenshiMahjong.Actors
 
 		public void StartNextGame(Game.GameMode mode, Wind wind, int repeat)
 		{
-			GameLog.Log($"New game - {mode} ({Game.PlayersForMode(mode)} players) - {wind} {repeat}");
-			CurrentGame = new Game(mode, wind, 1, 0);
+			_log.Log($"New game - {mode} ({Game.PlayersForMode(mode)} players) - {wind} {repeat}");
+			CurrentGame = new Game(_log, new GodotTime());
+			CurrentGame.Setup(mode, wind, 1, 0);
 			CurrentGame.State.OnStateChanged += OnGameStateChanged;
 			CurrentGame.Players.ForEach(player =>
 			{
@@ -94,7 +96,7 @@ namespace DenshiMahjong.Actors
 
 		private void OnPlayerNewHand(Player player)
 		{
-			GameLog.Log($"{player.Wind} player drew {player.Tiles.Count} tiles ({string.Join(", ", player.Sorted)})");
+			_log.Log($"{player.Wind} player drew {player.Tiles.Count} tiles ({string.Join(", ", player.Sorted)})");
 
 			// Populate hand in SC mode
 			if (SingleClient)
@@ -105,7 +107,7 @@ namespace DenshiMahjong.Actors
 
 		private void OnTileDrawn(Player player, Tile drawnTile)
 		{
-			GameLog.Log($"{player.Wind} player drew {drawnTile}");
+			_log.Log($"{player.Wind} player drew {drawnTile}");
 			if (SingleClient)
 			{
 				SCRefreshHand(player);

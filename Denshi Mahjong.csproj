@@ -2,11 +2,24 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>DenshiMahjong</RootNamespace>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Classes\**" />
+    <Compile Remove="MahjongLib\Logger.cs" />
+    <Compile Remove="MahjongLib\**" />
+    <Compile Remove="MahjongLibTests\**" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="Classes\**" />
+    <EmbeddedResource Remove="MahjongLib\**" />
+    <EmbeddedResource Remove="MahjongLibTests\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="MahjongLib\MahjongLib.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE" />
+    <Content Include="README.md" />
   </ItemGroup>
 </Project>

@@ -1,8 +1,10 @@
-﻿namespace DenshiMahjong.Utils
+﻿using MahjongLib.Utils;
+
+namespace DenshiMahjong.Utils
 {
-    public class GameLog
+    public class GameLog : ILogger
     {
-        public static void Log(string msg)
+        public void Log(string msg)
         {
             Godot.GD.Print(msg);
         }

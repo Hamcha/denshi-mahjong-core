@@ -2,6 +2,10 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Denshi Mahjong", "Denshi Mahjong.csproj", "{45411746-76B3-4CC5-97A9-6C914CD5DE45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MahjongLib", "MahjongLib\MahjongLib.csproj", "{23CF3C30-02F3-4232-9080-BAF2E6369399}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MahjongLibTests", "MahjongLibTests\MahjongLibTests.csproj", "{1346AE4D-002D-4007-BBE9-7D45677B0100}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 	Debug|Any CPU = Debug|Any CPU
@@ -15,5 +19,17 @@ Global
 		{45411746-76B3-4CC5-97A9-6C914CD5DE45}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{45411746-76B3-4CC5-97A9-6C914CD5DE45}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{45411746-76B3-4CC5-97A9-6C914CD5DE45}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{23CF3C30-02F3-4232-9080-BAF2E6369399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23CF3C30-02F3-4232-9080-BAF2E6369399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23CF3C30-02F3-4232-9080-BAF2E6369399}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23CF3C30-02F3-4232-9080-BAF2E6369399}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{23CF3C30-02F3-4232-9080-BAF2E6369399}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{23CF3C30-02F3-4232-9080-BAF2E6369399}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{1346AE4D-002D-4007-BBE9-7D45677B0100}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1346AE4D-002D-4007-BBE9-7D45677B0100}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1346AE4D-002D-4007-BBE9-7D45677B0100}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1346AE4D-002D-4007-BBE9-7D45677B0100}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{1346AE4D-002D-4007-BBE9-7D45677B0100}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{1346AE4D-002D-4007-BBE9-7D45677B0100}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal

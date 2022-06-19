@@ -1,6 +1,6 @@
 using System;
 
-namespace DenshiMahjong.Mahjong
+namespace MahjongLib
 {
 	public class Tile : IComparable
 	{

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DenshiMahjong.Utils;
-using Godot;
 
-namespace DenshiMahjong.Mahjong
+namespace MahjongLib
 {
     public class Player
     {
@@ -126,6 +124,11 @@ namespace DenshiMahjong.Mahjong
         {
             get => Tiles.OrderBy(tile => tile).ToList();
         }
+        
+        private int CountOf(Tile tile)
+        {
+            return Tiles.Count(t => t == tile);
+        }
 
         /// <summary>
         /// Checks if the player can call Pon on the given tile.
@@ -135,7 +138,7 @@ namespace DenshiMahjong.Mahjong
         public bool CanPon(Tile tile)
         {
             // Can only Pon if you have at least two identical tiles in your hand
-            return Tiles.Count(t => t == tile) >= 2;
+            return CountOf(tile) >= 2;
         }
         
         /// <summary>
@@ -146,7 +149,7 @@ namespace DenshiMahjong.Mahjong
         public bool CanKan(Tile tile)
         {
             // Can only Kan if you have at least three identical tiles in your hand
-            return Tiles.Count(t => t == tile) >= 3;
+            return CountOf(tile) >= 3;
         }
 
         /// <summary>
@@ -206,16 +209,15 @@ namespace DenshiMahjong.Mahjong
             // Make list to store valid calls
             var validCalls = new List<Call.CallType>();
 
-            // We can pon regardless of wind!
-            if (CanPon(tile))
+            // We can pon/kan regardless of wind!
+            switch (CountOf(tile))
             {
-                validCalls.Add(Call.CallType.Pon);
-            }
-
-            // We can kan regardless of wind
-            if (CanKan(tile))
-            {
-                validCalls.Add(Call.CallType.Daiminkan);
+                case 3:
+                    validCalls.Add(Call.CallType.Daiminkan);
+                    goto case 2;
+                case 2:
+                    validCalls.Add(Call.CallType.Pon);
+                    break;
             }
             
             // We can only chii from the player to our left

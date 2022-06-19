@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DenshiMahjong.Utils;
+using MahjongLib.Utils;
 
-namespace DenshiMahjong.Mahjong
+namespace MahjongLib
 {
     public class Game
     {
@@ -30,49 +30,29 @@ namespace DenshiMahjong.Mahjong
         public int Turn { get; private set; }
         public int Repeat { get; private set; }
         public FSM<GameState> State { get; private set; }
-        public Wall Wall { get; private set; } = new Wall();
+        public Wall Wall { get; private set; }
         public List<Player> Players { get; private set; }
         public Wind CurrentTurn { get; private set; }
         public Player ActivePlayer => Players.Find(player => player.Wind == CurrentTurn);
         public GameState CurrentState => State.Current;
 
-        private readonly List<Wind> _winds;
+        public List<Wind> Winds { get; private set; }
+        private Tile _lastDiscard;
 
-        public Game(GameMode mode, Wind wind, int turn, int repeat)
+        public readonly ILogger Logger;
+        public readonly ITimestamp Time;
+
+        public Game(ILogger logger = null, ITimestamp time = null)
         {
-            Mode = mode;
-            CurrentWind = wind;
-            Turn = turn;
-            Repeat = repeat;
-
-            // Get only available winds
-            _winds = Enum.GetValues(typeof(Wind))
-                .Cast<Wind>()
-                .Take(PlayersForMode(Mode))
-                .ToList();
-
-            Players = Enumerable.Range(0, _winds.Count).Select(index => new Player(this, index)).ToList();
-
-            Players.ForEach(player =>
-                player.OnTileDiscarded += (tile, drawn) => OnPlayerTileDiscarded(player, tile, drawn));
-
-            // Assign wind to players depending on turn
-            // This currently majorly sucks ass but I'm too tired to refactor it at the moment
-            var currentWind =
-                (Wind) (((int) wind + turn - 1) % Enum.GetValues(typeof(Wind)).Length);
-            foreach (var player in Players)
-            {
-                player.Wind = currentWind;
-                currentWind = NextWind(currentWind);
-            }
-
-            State = new FSM<GameState>(GameState.WaitingToStart);
-            State.OnStateChanged += OnStateChanged;
+            Logger = logger ?? new DefaultLogger();
+            Time = time ?? new DefaultTime();
+            Wall = new Wall(this);
         }
 
         private void OnPlayerTileDiscarded(Player player, Tile tile, bool justDrawn)
         {
-            GameLog.Log($"{player.Wind} discarded {tile} ({(justDrawn ? "just drawn" : "from hand")})");
+            Logger.Log($"{player.Wind} discarded {tile} ({(justDrawn ? "just drawn" : "from hand")})");
+            _lastDiscard = tile;
             State.Set(GameState.WaitingForCall);
         }
 
@@ -84,17 +64,20 @@ namespace DenshiMahjong.Mahjong
                     SetupBoard();
                     break;
                 case GameState.PlayerTurnBegin:
-                    GameLog.Log($"== {CurrentTurn}'s turn ==");
+                    Logger.Log($"== {CurrentTurn}'s turn ==");
                     StartPlayerTurn();
                     break;
                 case GameState.WaitingForDiscard:
-                    GameLog.Log("Waiting for discard");
+                    Logger.Log("Waiting for discard");
                     break;
                 case GameState.WaitingForCall:
-                    var wait = CheckValidCalls();
-                    if (wait)
+                    var calls = Players.Select(player => (player, player.ValidCalls(_lastDiscard, CurrentTurn)))
+                        .Where(callTuple => callTuple.Item2.Count > 0).ToList();
+                    if (calls.Count > 0)
                     {
-                        GameLog.Log("Waiting for calls");
+                        Logger.Log("Waiting for calls from " + string.Join(", ",
+                            calls.Select(callTuple =>
+                                $"{callTuple.player.Wind} ({string.Join(" ,", callTuple.Item2)})")));
                     }
                     else
                     {
@@ -112,16 +95,42 @@ namespace DenshiMahjong.Mahjong
             }
         }
 
-        private bool CheckValidCalls()
-        {
-            //TODO
-            return false;
-        }
-
         private void NextTurn()
         {
             CurrentTurn = NextWind(CurrentTurn);
             State.Set(GameState.PlayerTurnBegin);
+        }
+
+        public void Setup(GameMode mode, Wind wind, int turn, int repeat)
+        {
+            Mode = mode;
+            CurrentWind = wind;
+            Turn = turn;
+            Repeat = repeat;
+
+            // Get only available winds
+            Winds = Enum.GetValues(typeof(Wind))
+                .Cast<Wind>()
+                .Take(PlayersForMode(Mode))
+                .ToList();
+
+            Players = Enumerable.Range(0, Winds.Count).Select(index => new Player(this, index)).ToList();
+
+            Players.ForEach(player =>
+                player.OnTileDiscarded += (tile, drawn) => OnPlayerTileDiscarded(player, tile, drawn));
+
+            // Assign wind to players depending on turn
+            // This currently majorly sucks ass but I'm too tired to refactor it at the moment
+            var currentWind =
+                (Wind) (((int) wind + turn - 1) % Enum.GetValues(typeof(Wind)).Length);
+            foreach (var player in Players)
+            {
+                player.Wind = currentWind;
+                currentWind = NextWind(currentWind);
+            }
+
+            State = new FSM<GameState>(GameState.WaitingToStart, Time);
+            State.OnStateChanged += OnStateChanged;
         }
 
         public void Start()
@@ -129,12 +138,6 @@ namespace DenshiMahjong.Mahjong
             Wall.NewGame();
             Wall.RevealDora();
             State.Set(GameState.GameStart);
-        }
-
-        public void RotateWinds()
-        {
-            // Rotate available winds
-            Players.ForEach(player => player.Wind = NextWind(player.Wind));
         }
 
         public void SetupBoard()
@@ -155,18 +158,18 @@ namespace DenshiMahjong.Mahjong
 
         public Wind NextWind(Wind currentWind)
         {
-            return _winds.SkipWhile(wind => currentWind != wind).Skip(1).FirstOrDefault();
+            return Winds.SkipWhile(wind => currentWind != wind).Skip(1).FirstOrDefault();
         }
-        
+
         public Wind PreviousWind(Wind currentWind)
         {
             try
             {
-                return _winds.TakeWhile(wind => currentWind != wind).Last();
+                return Winds.TakeWhile(wind => currentWind != wind).Last();
             }
             catch (InvalidOperationException)
             {
-                return _winds.Last();
+                return Winds.Last();
             }
         }
 

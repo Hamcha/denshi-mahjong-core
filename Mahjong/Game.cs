@@ -26,19 +26,19 @@ namespace DenshiMahjong.Mahjong
         }
 
         public GameMode Mode { get; private set; }
-        public Tile.WindDirection CurrentWind { get; private set; }
+        public Wind CurrentWind { get; private set; }
         public int Turn { get; private set; }
         public int Repeat { get; private set; }
         public FSM<GameState> State { get; private set; }
         public Wall Wall { get; private set; } = new Wall();
         public List<Player> Players { get; private set; }
-        public Tile.WindDirection CurrentTurn { get; private set; }
+        public Wind CurrentTurn { get; private set; }
         public Player ActivePlayer => Players.Find(player => player.Wind == CurrentTurn);
         public GameState CurrentState => State.Current;
 
-        private readonly List<Tile.WindDirection> _winds;
+        private readonly List<Wind> _winds;
 
-        public Game(GameMode mode, Tile.WindDirection wind, int turn, int repeat)
+        public Game(GameMode mode, Wind wind, int turn, int repeat)
         {
             Mode = mode;
             CurrentWind = wind;
@@ -46,12 +46,12 @@ namespace DenshiMahjong.Mahjong
             Repeat = repeat;
 
             // Get only available winds
-            _winds = Enum.GetValues(typeof(Tile.WindDirection))
-                .Cast<Tile.WindDirection>()
+            _winds = Enum.GetValues(typeof(Wind))
+                .Cast<Wind>()
                 .Take(PlayersForMode(Mode))
                 .ToList();
 
-            Players = Enumerable.Range(0, _winds.Count).Select(index => new Player(Wall, index)).ToList();
+            Players = Enumerable.Range(0, _winds.Count).Select(index => new Player(this, index)).ToList();
 
             Players.ForEach(player =>
                 player.OnTileDiscarded += (tile, drawn) => OnPlayerTileDiscarded(player, tile, drawn));
@@ -59,7 +59,7 @@ namespace DenshiMahjong.Mahjong
             // Assign wind to players depending on turn
             // This currently majorly sucks ass but I'm too tired to refactor it at the moment
             var currentWind =
-                (Tile.WindDirection) (((int) wind + turn - 1) % Enum.GetValues(typeof(Tile.WindDirection)).Length);
+                (Wind) (((int) wind + turn - 1) % Enum.GetValues(typeof(Wind)).Length);
             foreach (var player in Players)
             {
                 player.Wind = currentWind;
@@ -143,7 +143,7 @@ namespace DenshiMahjong.Mahjong
             Players.ForEach(player => player.DrawStartingHand());
 
             // Set current turn to first player (dealer, aka east)
-            CurrentTurn = Tile.WindDirection.East;
+            CurrentTurn = Wind.East;
             State.Set(GameState.PlayerTurnBegin);
         }
 
@@ -153,9 +153,21 @@ namespace DenshiMahjong.Mahjong
             State.Set(GameState.WaitingForDiscard);
         }
 
-        private Tile.WindDirection NextWind(Tile.WindDirection currentWind)
+        public Wind NextWind(Wind currentWind)
         {
             return _winds.SkipWhile(wind => currentWind != wind).Skip(1).FirstOrDefault();
+        }
+        
+        public Wind PreviousWind(Wind currentWind)
+        {
+            try
+            {
+                return _winds.TakeWhile(wind => currentWind != wind).Last();
+            }
+            catch (InvalidOperationException)
+            {
+                return _winds.Last();
+            }
         }
 
         public static int PlayersForMode(GameMode mode)

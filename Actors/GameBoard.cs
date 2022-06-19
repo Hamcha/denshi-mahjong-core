@@ -21,7 +21,7 @@ namespace DenshiMahjong.Actors
 		private PackedScene _tileNode = (PackedScene) GD.Load("res://Actors/Tile2D.tscn");
 
 		private Color activeTurnColor = Colors.White;
-		private Color idleTurnColor = Color.Color8(255, 255, 255, 100);
+		private Color idleTurnColor = Color.Color8(255, 255, 255, 160);
 
 		// Editor / Debug
 		[Export] public bool SingleClient = false;
@@ -34,12 +34,12 @@ namespace DenshiMahjong.Actors
 			_playerHands = GetNode("SC/Players").GetChildren().Cast<HBoxContainer>().ToList();
 			_playerWindLabels = GetNode("SC/Winds").GetChildren().Cast<Label>().ToList();
 			_playerDrawnTiles = GetNode("SC/DrawnTiles").GetChildren().Cast<Control>().ToList();
-			_playerDiscards = GetNode("SC/Discards").GetChildren().Cast<GridContainer>().ToList();
+			_playerDiscards = GetNode("Discards").GetChildren().Cast<GridContainer>().ToList();
 
-			StartNextGame(Game.GameMode.Riichi, Tile.WindDirection.East, 1);
+			StartNextGame(Game.GameMode.Riichi, Wind.East, 1);
 		}
 
-		public void StartNextGame(Game.GameMode mode, Tile.WindDirection wind, int repeat)
+		public void StartNextGame(Game.GameMode mode, Wind wind, int repeat)
 		{
 			GameLog.Log($"New game - {mode} ({Game.PlayersForMode(mode)} players) - {wind} {repeat}");
 			CurrentGame = new Game(mode, wind, 1, 0);

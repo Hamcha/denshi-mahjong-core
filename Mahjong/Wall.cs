@@ -83,10 +83,10 @@ namespace DenshiMahjong.Mahjong
 				from value in Enumerable.Range(1, 9)
 				select new Tile(suit, value);
 
-			var windTiles = from wind in Enum.GetValues(typeof(Tile.WindDirection)).Cast<int>()
+			var windTiles = from wind in Enum.GetValues(typeof(Wind)).Cast<int>()
 				select new Tile(Tile.Kind.Wind, wind);
 
-			var dragonTiles = from dragon in Enum.GetValues(typeof(Tile.DragonType)).Cast<int>()
+			var dragonTiles = from dragon in Enum.GetValues(typeof(Dragon)).Cast<int>()
 				select new Tile(Tile.Kind.Dragon, dragon);
 
 			return numberTiles

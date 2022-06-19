@@ -13,21 +13,6 @@ namespace DenshiMahjong.Mahjong
 			Dragon
 		}
 
-		public enum WindDirection : int
-		{
-			East,
-			South,
-			West,
-			North
-		}
-
-		public enum DragonType : int
-		{
-			White,
-			Green,
-			Red
-		}
-
 		public Kind kind;
 		public int value;
 
@@ -48,9 +33,9 @@ namespace DenshiMahjong.Mahjong
 				case Kind.Circle:
 					return $"P/{value}";
 				case Kind.Dragon:
-					return $"D/{((DragonType) value).ToString()[0]}";
+					return $"D/{((Dragon) value).ToString()[0]}";
 				case Kind.Wind:
-					return $"W/{((WindDirection) value).ToString()[0]}";
+					return $"W/{((Wind) value).ToString()[0]}";
 			}
 
 			return "UNK";
@@ -75,6 +60,9 @@ namespace DenshiMahjong.Mahjong
 				throw new ArgumentException("Object is not a Tile");
 			}
 		}
+		
+		public bool IsHonor => kind == Kind.Dragon || kind == Kind.Wind;
+		public bool IsTerminal => IsHonor || value == 1 || value == 9;
 
 		public Tile Next
 		{
@@ -85,12 +73,12 @@ namespace DenshiMahjong.Mahjong
 				switch (kind)
 				{
 					case Kind.Dragon:
-						wrap = Enum.GetValues(typeof(DragonType)).Length;
-						wrapTo = (int) DragonType.White;
+						wrap = Enum.GetValues(typeof(Dragon)).Length;
+						wrapTo = (int) Dragon.White;
 						break;
 					case Kind.Wind:
-						wrap = Enum.GetValues(typeof(WindDirection)).Length;
-						wrapTo = (int) WindDirection.East;
+						wrap = Enum.GetValues(typeof(Wind)).Length;
+						wrapTo = (int) Wind.East;
 						break;
 				}
 
@@ -103,5 +91,20 @@ namespace DenshiMahjong.Mahjong
 				return new Tile(kind, nextValue);
 			}
 		}
+	}
+
+	public enum Dragon : int
+	{
+		White,
+		Green,
+		Red
+	}
+
+	public enum Wind : int
+	{
+		East,
+		South,
+		West,
+		North
 	}
 }

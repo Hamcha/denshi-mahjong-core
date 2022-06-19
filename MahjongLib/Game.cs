@@ -101,13 +101,31 @@ namespace MahjongLib
             State.Set(GameState.PlayerTurnBegin);
         }
 
+        /// <summary>
+        /// Sets up the board for the chosen game mode and parameters.
+        /// </summary>
+        /// <param name="mode">Game mode to play, determines the number of players</param>
+        /// <param name="wind">Prevalent wind, most likely East or South</param>
+        /// <param name="turn">Current turn (e.g. 3 for East 3)</param>
+        /// <param name="repeat">Current repeat</param>
+        /// <exception cref="ArgumentOutOfRangeException">turn and/or repeat are is set outside their allowed bounds</exception>
         public void Setup(GameMode mode, Wind wind, int turn, int repeat)
         {
+            if (turn < 1 || turn > PlayersForMode(mode))
+            {
+                throw new ArgumentOutOfRangeException(nameof(turn), "Turn must be between 1 and the maximum number of players for the chosen mode");
+            }
+            
+            if (repeat < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(repeat), "Repeat must be positive or zero");
+            }
+            
             Mode = mode;
             CurrentWind = wind;
             Turn = turn;
             Repeat = repeat;
-
+            
             // Get only available winds
             Winds = Enum.GetValues(typeof(Wind))
                 .Cast<Wind>()
@@ -121,8 +139,7 @@ namespace MahjongLib
 
             // Assign wind to players depending on turn
             // This currently majorly sucks ass but I'm too tired to refactor it at the moment
-            var currentWind =
-                (Wind) (((int) wind + turn - 1) % Enum.GetValues(typeof(Wind)).Length);
+            var currentWind = Winds.Append(Wind.East).Reverse().Skip(turn - 1).FirstOrDefault();
             foreach (var player in Players)
             {
                 player.Wind = currentWind;
